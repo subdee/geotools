@@ -1,24 +1,41 @@
 {
-    "name"        : "league/geotools",
-    "type"        : "library",
-    "description" : "Geo-related tools PHP 7.0+ library",
-    "keywords"    : ["geotools", "geometry", "geocoder", "geocoding", "geoip", "bounds", "distance", "batch", "async", "geohash", "geolocation", "latlong", "latitude", "longitude"],
-    "license"     : "MIT",
-
-    "authors" : [{
-        "name"     : "Antoine Corcy",
-        "email"    : "contact@sbin.dk",
-        "homepage" : "http://sbin.dk",
-        "role"     : "Developer"
-    }],
+    "name": "subdee/geotools",
+    "type": "library",
+    "description": "Geo-related tools PHP 7.0+ library",
+    "keywords": [
+        "geotools",
+        "geometry",
+        "geocoder",
+        "geocoding",
+        "geoip",
+        "bounds",
+        "distance",
+        "batch",
+        "async",
+        "geohash",
+        "geolocation",
+        "latlong",
+        "latitude",
+        "longitude"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Antoine Corcy",
+            "email": "contact@sbin.dk",
+            "homepage": "http://sbin.dk",
+            "role": "Developer"
+        },
+        {
+            "name": "Konstantinos Thermos",
+            "email": "info@subdee.org",
+            "role": "Developer"
+        }
+    ],
 
     "support" : {
-        "issues" : "https://github.com/thephpleague/geotools/issues",
-        "source" : "https://github.com/thephpleague/geotools"
-    },
-
-    "replace" : {
-        "toin0u/geotools" : "*"
+        "issues": "https://github.com/subdee/geotools/issues",
+        "source": "https://github.com/subdee/geotools"
     },
 
     "require" : {

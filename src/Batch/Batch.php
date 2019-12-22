@@ -12,7 +12,10 @@
 namespace League\Geotools\Batch;
 
 use Geocoder\Geocoder;
+use Geocoder\Model\Coordinates;
 use Geocoder\ProviderAggregator;
+use Geocoder\Query\GeocodeQuery;
+use Geocoder\Query\ReverseQuery;
 use League\Geotools\Coordinate\CoordinateInterface;
 use League\Geotools\Exception\InvalidArgumentException;
 use Psr\Cache\CacheItemPoolInterface;
@@ -46,6 +49,13 @@ class Batch implements BatchInterface
      * @var CacheItemPoolInterface
      */
     protected $cache;
+
+    /**
+     * The locale string to use in the queries
+     *
+     * @var string
+     */
+    protected $locale;
 
     /**
      * Set the Geocoder instance to use.
@@ -119,7 +129,11 @@ class Batch implements BatchInterface
                                 $deferred->resolve($cached);
                             } else {
                                 $batchResult = new BatchResult($provider->getName(), $value);
-                                $address = $geocoder->using($provider->getName())->geocode($value)->first();
+                                $geocodeQuery = GeocodeQuery::create($value);
+                                if ($this->locale !== null) {
+                                    $geocodeQuery = $geocodeQuery->withLocale($this->locale);
+                                }
+                                $address = $geocoder->using($provider->getName())->geocodeQuery($geocodeQuery)->first();
                                 $deferred->resolve($cache->cache($batchResult->createFromAddress($address)));
                             }
                         } catch (\Exception $e) {
@@ -139,7 +153,11 @@ class Batch implements BatchInterface
                             $deferred->resolve($cached);
                         } else {
                             $batchResult = new BatchResult($provider->getName(), $values);
-                            $address = $geocoder->using($provider->getName())->geocode($values)->first();
+                            $geocodeQuery = GeocodeQuery::create($values);
+                            if ($this->locale !== null) {
+                                $geocodeQuery = $geocodeQuery->withLocale($this->locale);
+                            }
+                            $address = $geocoder->using($provider->getName())->geocodeQuery($geocodeQuery)->first();
                             $deferred->resolve($cache->cache($batchResult->createFromAddress($address)));
                         }
                     } catch (\Exception $e) {
@@ -179,10 +197,14 @@ class Batch implements BatchInterface
                                 $deferred->resolve($cached);
                             } else {
                                 $batchResult = new BatchResult($provider->getName(), $valueCoordinates);
-                                $address = $geocoder->using($provider->getName())->reverse(
-                                        $coordinate->getLatitude(),
-                                        $coordinate->getLongitude()
-                                    )->first();
+                                $reverseQuery = ReverseQuery::create(new Coordinates(
+                                    $coordinate->getLatitude(),
+                                    $coordinate->getLongitude()
+                                ));
+                                if ($this->locale !== null) {
+                                    $reverseQuery = $reverseQuery->withLocale($this->locale);
+                                }
+                                $address = $geocoder->using($provider->getName())->reverseQuery($reverseQuery)->first();
 
                                 $deferred->resolve($cache->cache($batchResult->createFromAddress($address)));
                             }
@@ -204,10 +226,17 @@ class Batch implements BatchInterface
                             $deferred->resolve($cached);
                         } else {
                             $batchResult = new BatchResult($provider->getName(), $valueCoordinates);
+                            $reverseQuery = ReverseQuery::create(new Coordinates(
+                                $coordinates->getLatitude(),
+                                $coordinates->getLongitude()
+                            ));
+                            if ($this->locale !== null) {
+                                $reverseQuery = $reverseQuery->withLocale($this->locale);
+                            }
                             $address = $geocoder->using($provider->getName())->reverse(
-                                    $coordinates->getLatitude(),
-                                    $coordinates->getLongitude()
-                                )->first();
+                                $coordinates->getLatitude(),
+                                $coordinates->getLongitude()
+                            )->first();
                             $deferred->resolve($cache->cache($batchResult->createFromAddress($address)));
                         }
                     } catch (\Exception $e) {
@@ -284,8 +313,15 @@ class Batch implements BatchInterface
         return $this;
     }
 
+    public function setLocale(string $locale)
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
     private function getCacheKey(string $providerName, string $query): string
     {
-        return sha1($providerName.'-'.$query);
+        return sha1($providerName . '-' . $query);
     }
 }
